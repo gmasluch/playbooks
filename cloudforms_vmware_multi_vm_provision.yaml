@@ -19,6 +19,7 @@
         template: "{{ vcenter_template }}"
         datacenter: "{{ vcenter_datacenter }}"
 #        folder: "{{ vcenter_folder }}"
+
         state: present
         wait_for_ip_address: yes
         validate_certs: no
@@ -27,6 +28,10 @@
     - name: VM info
       debug:
         msg: "{{ newvm.instance.ipv4 }} {{ vm_name }}"
+
+    - name: VM hw_name - info
+      debug:
+        msg: "{{ newvm.instance.hw_name }}"
 
 #    - name: Wait for SSH to come up
 #      wait_for:
@@ -80,7 +85,7 @@
 
     - name: Lookup instances href
       uri:
-        url: "{{ manageiq.api_url }}/api/vms?filter[]=name={{ item.instance.hw_name }}&expand=resources"
+        url: "{{ manageiq.api_url }}/api/vms?filter[]=name={{ item }}&expand=resources"
         method: GET
         body:
           action: refresh
@@ -91,7 +96,7 @@
           Content-Type: "application/json"
         status_code: 200
       register: output
-      with_items: "{{ newvm }}"
+      with_items: "{{ vm_name }}"
 
     - name: Set the Service URL
       set_fact:
